@@ -1,35 +1,34 @@
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const ENV = process.env.NODE_ENV;
 
 module.exports = {
-  entry: [
-    './src/index.js'
-  ],
+  entry: ["./src/index.js"],
   output: {
-    path: path.join(__dirname, 'public'),
-    filename: 'bundle.js'
+    path: path.join(__dirname, "public"),
+    filename: "bundle.js"
   },
   externals: {
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    'redux': 'Redux',
-    'react-redux': 'ReactRedux',
-    newamericadotorg: 'newamericadotorg'
+    react: "React",
+    "react-dom": "ReactDOM",
+    redux: "Redux",
+    "react-redux": "ReactRedux",
+    newamericadotorg: "newamericadotorg"
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new ExtractTextPlugin({ filename: 'bundle.css' }),
+    new ExtractTextPlugin({ filename: "bundle.css" }),
     new HtmlWebpackPlugin({
-      title: '',
+      title: "",
       chartIDs: [
-        ''
+        "bw2_ranking_regulators_column_chart",
+        "bw2_ranking_regulators_pindrop_map"
       ],
       inject: false,
-      template: path.resolve(__dirname, 'src/index.html')
+      template: path.resolve(__dirname, "src/index.html")
     })
   ],
   module: {
@@ -40,15 +39,25 @@ module.exports = {
         loaders: "babel-loader",
         options: {
           presets: ["es2015", "react"],
-          plugins: ["transform-class-properties", "transform-object-rest-spread"]
+          plugins: [
+            "transform-class-properties",
+            "transform-object-rest-spread"
+          ]
         }
       },
       {
         test: /\.s?css/,
-        use: ENV === 'production' ? ["style-loader", "css-loader", "sass-loader"] : ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: ["css-loader", "sass-loader"]
-        })
+        use:
+          ENV === "production"
+            ? ["style-loader", "css-loader", "sass-loader"]
+            : ExtractTextPlugin.extract({
+                fallback: "style-loader",
+                use: ["css-loader", "sass-loader"]
+              })
+      },
+      {
+        test: /\.csv$/,
+        loader: "raw-loader"
       }
     ]
   }
