@@ -1,70 +1,68 @@
+import React from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson";
 import Tooltip from "../../components/Tooltip/Tooltip";
 
-export default class PindropMap {
-  constructor(el, data) {
-    this.element = el;
-    this.data = data;
-    this.width = el.offsetWidth;
-    this.height = (2 * el.offsetWidth) / 5;
+class PindropMap extends React.Component {
+  constructor(props) {
+    super(props);
+    loadGeometry();
+    this.createMap = this.createMap.bind(this);
   }
 
-  loadGeometry(geometry) {
-    if (geometry === "world") {
+  componentDidMount() {
+    this.createMap();
+  }
+
+  loadGeometry() {
+    if (this.props.geometry === "world") {
       fetch(
         "https://s3-us-west-2.amazonaws.com/na-data-projects/geography/world.json"
       )
         .then(response => response.json())
         .then(world => {
-          this.features = topojson.feature(
+          features = topojson.feature(
             world,
             world.objects.countries
           ).features;
-          this.projection = d3
+          this.state.projection = d3
             .geoEquirectangular()
             .fitSize(
               [this.width, this.height],
               topojson.feature(world, world.objects.countries)
             );
-          this.path = d3.geoPath().projection(this.projection);
-          this.draw();
+          this.state.path = d3.geoPath().projection(this.state.projection);
         });
-    } else if (geometry === "us") {
+    } else if (this.props.geometry === "us") {
       fetch(
         "https://s3-us-west-2.amazonaws.com/na-data-projects/geography/us.json"
       )
         .then(response => response.json())
         .then(us => {
-          this.features = topojson.feature(us, us.objects.states).features;
-          this.projection = d3
+          this.state.features = topojson.feature(
+            us,
+            us.objects.states
+          ).features;
+          this.state.projection = d3
             .geoAlbersUsa()
             .fitSize([this.width, this.height], feature);
-          this.path = d3.geoPath().projection(this.projection);
-          this.draw();
+          this.state.path = d3.geoPath().projection(this.state.projection);
         });
     }
-    return this;
   }
 
-  draw() {
-    this.element.innerHTML = "";
-    this.svg = d3
-      .select(this.element)
-      .append("svg")
-      .attr("width", this.width)
-      .attr("height", this.height);
-    this.g = this.svg.append("g");
-    this.g
+  createMap() {
+    const svg = d3.select(this.node);
+    const g = svg.append("g")
       .selectAll("path")
-      .data(this.features)
+      .data(this.state.features)
       .enter()
       .append("path")
-      .attr("d", d => this.path(d))
+      .attr("d", d => this.state.path(d))
       .attr("fill", "#CBCBCD")
       .attr("stroke", "white");
 
-    this.pins = this.g
+    const pins = g
       .selectAll("circle")
       .data(this.data)
       .enter()
@@ -75,13 +73,23 @@ export default class PindropMap {
       .attr("fill", "#2ebcb3")
       .attr("stroke", "white")
       .attr("stroke-width", "1px")
-      .on("mouseover", function(d) {
+      .on("mouseover", function (d) {
         d3.select(this).attr("stroke-width", 2);
       })
-      .on("mouseout", function(d) {
+      .on("mouseout", function (d) {
         d3.select(this).attr("stroke-width", 1);
       });
-    return this;
+  }
+
+  render() {
+    const { data, width, height, title, subTitle, tooltipHtml } = this.props;
+    return (
+    <Title text={title} />
+    <SubTitle text={subTitle} />
+    <Chart>
+      <svg ref={node => (this.node = node)} width={width} height={height} />
+    </Chart>
+    );
   }
 
   tooltip(tooltipTemplate) {
