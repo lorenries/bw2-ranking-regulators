@@ -1,20 +1,19 @@
 import "./index.scss";
 import "./charts/Table/Table.scss";
-// import HorizontalBarChart from "./charts/HorizontalBarChart";
-// import PindropMap from "./charts/PindropMap";
 import * as d3 from "d3";
-import * as topojson from "topojson";
-import data from "./data/all.csv";
+import React from "react";
+import ReactDOM from "react-dom";
+import PindropMap from "./charts/PindropMap";
+import rawData from "./data/all.csv";
 
-import Tooltip from "./components/Tooltip/Tooltip";
-import PindropMap from "./charts/PindropMap/PindropMap";
+const data = d3.csvParse(rawData);
 
 const settings = {
   bw2_ranking_regulators_column_chart: {
-    init: bw2ColumnChart
+    init: mixedTableBarInit
   },
   bw2_ranking_regulators_pindrop_map: {
-    init: bw2Map
+    init: mapInit
   }
 };
 
@@ -23,151 +22,57 @@ window.renderDataViz = function(el) {
   settings[id].init(el);
 };
 
-function bw2Map(el) {
-  const mapData = d3.csvParse(data).map(row => {
-    return {
-      Regulators: row["Regulators"],
-      "Type/Country": row["Type/Country"],
-      lat: row["lat"],
-      lon: row["lon"],
-      "Total Score": row["Total Score"],
-      Ranking: row["Ranking"]
-    };
-  });
-  const map = new PindropMap(el, mapData);
+function dataTableInit() {}
 
-  const tooltipTemplate = d => `
-        <div class="tooltip__title-container">
-          <h1 class="tooltip__title">${d["Regulators"]}</h1>
+function mapInit(el) {
+  const tooltipTemplate = d => (
+    <div>
+      <div className="tooltip__title-container">
+        <h1 className="tooltip__title">{d["Regulators"]}</h1>
+      </div>
+      <div className="tooltip__category">
+        <div className="tooltip__category__list-item">
+          <span className="tooltip__category__list-item__label">
+            Type/Country:
+          </span>
+          <span className="tooltip__category__list-item__value">
+            {d["Type/Country"]}
+          </span>
         </div>
-        <div class="tooltip__category">
-            <div class="tooltip__category__list-item">
-              <span class="tooltip__category__list-item__label">Type/Country:</span>
-              <span class="tooltip__category__list-item__value">${
-                d["Type/Country"]
-              }</span>
-            </div>
-            <div class="tooltip__category__list-item">
-              <span class="tooltip__category__list-item__label">Ranking:</span>
-              <span class="tooltip__category__list-item__value">${
-                d["Ranking"]
-              }</span>
-            </div>
-            <div class="tooltip__category__list-item">
-              <span class="tooltip__category__list-item__label">Total Score:</span>
-              <span class="tooltip__category__list-item__value">${
-                d["Total Score"]
-              }</span>
-            </div>
+        <div className="tooltip__category__list-item">
+          <span className="tooltip__category__list-item__label">Ranking:</span>
+          <span className="tooltip__category__list-item__value">
+            {d["Ranking"]}
+          </span>
         </div>
-      `;
+        <div className="tooltip__category__list-item">
+          <span className="tooltip__category__list-item__label">
+            Total Score:
+          </span>
+          <span className="tooltip__category__list-item__value">
+            {d["Total Score"]}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 
-  map.loadGeometry("world").then(map => map.tooltip(tooltipTemplate));
+  ReactDOM.render(
+    <PindropMap
+      data={data}
+      geometry="world"
+      width={el.offsetWidth}
+      height={(2 * el.offsetWidth) / 5}
+      title="Test Title"
+      subtitle="test SubTitle"
+      tooltip={tooltipTemplate}
+    />,
+    el
+  );
 }
 
-// function bw2Map(el) {
-//   const mapData = d3.csvParse(data).map(row => {
-//     return {
-//       Regulators: row["Regulators"],
-//       "Type/Country": row["Type/Country"],
-//       lat: row["lat"],
-//       lon: row["lon"],
-//       "Total Score": row["Total Score"],
-//       Ranking: row["Ranking"]
-//     };
-//   });
-//   el.style.width = "100%";
-//   const width = el.offsetWidth;
-//   const height = (2 * el.offsetWidth) / 5;
-//   const svg = d3
-//     .select(el)
-//     .append("svg")
-//     .attr("width", width)
-//     .attr("height", height);
-
-//   const g = svg.append("g");
-
-//   fetch(
-//     "https://s3-us-west-2.amazonaws.com/na-data-projects/geography/world.json"
-//   )
-//     .then(response => response.json())
-//     .then(world => {
-//       const projection = d3
-//         .geoEquirectangular()
-//         .fitSize(
-//           [width, height],
-//           topojson.feature(world, world.objects.countries)
-//         );
-
-//       const path = d3.geoPath().projection(projection);
-
-//       const tip = new Tooltip();
-//       const tooltipTemplate = d => `
-//         <div class="tooltip__title-container">
-//           <h1 class="tooltip__title">${d["Regulators"]}</h1>
-//         </div>
-//         <div class="tooltip__category">
-//             <div class="tooltip__category__list-item">
-//               <span class="tooltip__category__list-item__label">Type/Country:</span>
-//               <span class="tooltip__category__list-item__value">${
-//                 d["Type/Country"]
-//               }</span>
-//             </div>
-//             <div class="tooltip__category__list-item">
-//               <span class="tooltip__category__list-item__label">Ranking:</span>
-//               <span class="tooltip__category__list-item__value">${
-//                 d["Ranking"]
-//               }</span>
-//             </div>
-//             <div class="tooltip__category__list-item">
-//               <span class="tooltip__category__list-item__label">Total Score:</span>
-//               <span class="tooltip__category__list-item__value">${
-//                 d["Total Score"]
-//               }</span>
-//             </div>
-//         </div>
-//       `;
-
-//       g.selectAll("path")
-//         .data(topojson.feature(world, world.objects.countries).features)
-//         .enter()
-//         .append("path")
-//         .attr("d", path)
-//         .attr("fill", "#CBCBCD")
-//         .attr("stroke", "white");
-
-//       g.selectAll("circle")
-//         .data(mapData)
-//         .enter()
-//         .append("circle")
-//         .attr("cx", d => projection([d.lon, d.lat])[0])
-//         .attr("cy", d => projection([d.lon, d.lat])[1])
-//         .attr("r", 5)
-//         .attr("fill", "#2ebcb3")
-//         .attr("stroke", "white")
-//         .attr("stroke-width", "1px")
-//         .on("mouseover", function(d) {
-//           d3.select(this).attr("stroke-width", 2);
-//           tip.show(d3.event).html(tooltipTemplate(d));
-//         })
-//         .on("mouseout", function() {
-//           d3.select(this).attr("stroke-width", 1);
-//           tip.hide();
-//         });
-
-//       const zoom = d3.zoom().on("zoom", () => {
-//         g.attr("transform", d3.event.transform);
-//         g.selectAll("circle").attr("d", path.projection(projection));
-//         g.selectAll("path").attr("d", path.projection(projection));
-//       });
-
-//       // svg.call(zoom);
-//     });
-// }
-
-function bw2ColumnChart(el) {
-  const filteredData = d3
-    .csvParse(data)
+function mixedTableBarInit(el) {
+  const filteredData = data
     .map(row => {
       return {
         Ranking: row["Ranking"],
