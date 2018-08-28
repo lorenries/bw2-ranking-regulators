@@ -1,67 +1,52 @@
+import React from "react";
 import "./Tooltip.scss";
-import * as d3 from "d3";
 
-export default class Tooltip {
-  constructor() {
-    let tooltipClass = "tooltip hidden";
-    const nonScrollXPadding = 15;
-    const scrollXPadding = 2;
-    tooltipClass += this.tooltipScrollable ? " scrollable" : "";
-    this.xPadding = this.tooltipScrollable ? scrollXPadding : nonScrollXPadding;
+const body = document.querySelector("body");
 
-    this.tooltip = d3
-      .select("body")
-      .append("div")
-      .attr("class", tooltipClass);
-
-    if (this.tooltipScrollable) {
-      this.tooltip.append("div").attr("class", "tooltip__fadeout__top");
-      this.tooltip.append("div").attr("class", "tooltip__fadeout__bottom");
-    }
-
-    this.contentContainer = this.tooltip
-      .append("div")
-      .attr("class", "tooltip__content-container");
-  }
-
-  html(content) {
-    this.contentContainer.html(content);
-    return this;
-  }
-
-  show(e) {
-    if (window.innerWidth < 450) {
-      return;
-    }
-    let mouse = [e.pageX, e.pageY];
-    this.tooltip.classed("hidden", false);
-    let tooltipCoords = this.getTooltipCoords(mouse);
-    this.tooltip.attr(
-      "style",
-      "left:" + tooltipCoords[0] + "px; top:" + tooltipCoords[1] + "px"
-    );
-    return this;
-  }
-
-  hide() {
-    this.tooltip.classed("hidden", true);
-    return this;
+class Tooltip extends React.Component {
+  constructor(props) {
+    super(props);
   }
 
   getTooltipCoords(mouse) {
-    let retCoords = mouse;
-    let windowWidth = window.innerWidth;
-    let tooltipHeight = this.tooltip.node().offsetHeight;
-    let tooltipWidth = this.tooltip.node().offsetWidth;
+    if (this.tooltip) {
+      let retCoords = mouse;
+      let windowWidth = window.innerWidth;
+      let tooltipHeight = this.tooltip.offsetHeight;
+      let tooltipWidth = this.tooltip.offsetWidth;
+      let xPadding = 15;
 
-    if (mouse[0] > windowWidth - tooltipWidth - this.xPadding) {
-      retCoords[0] = mouse[0] - tooltipWidth - 50;
-      retCoords[0] -= this.xPadding;
+      if (mouse[0] > windowWidth - tooltipWidth - xPadding) {
+        retCoords[0] = mouse[0] - tooltipWidth - 50;
+        retCoords[0] -= xPadding;
+      } else {
+        retCoords[0] += xPadding;
+      }
+
+      retCoords[1] -= tooltipHeight / 2 + 15;
+      return retCoords;
     } else {
-      retCoords[0] += this.xPadding;
+      return [0, 0];
     }
+  }
 
-    retCoords[1] -= tooltipHeight / 2 + 15;
-    return retCoords;
+  render() {
+    const { isActive, d, mousePos, tooltip } = this.props;
+
+    return ReactDOM.createPortal(
+      <div
+        className={isActive ? "tooltip" : "tooltip hidden"}
+        ref={tooltip => (this.tooltip = tooltip)}
+        style={{
+          top: `${this.getTooltipCoords(mousePos)[1]}px`,
+          left: `${this.getTooltipCoords(mousePos)[0]}px`
+        }}
+      >
+        <div className="tooltip__content-container">{tooltip(d)}</div>
+      </div>,
+      body
+    );
   }
 }
+
+export default Tooltip;
