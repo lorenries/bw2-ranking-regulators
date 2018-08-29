@@ -2,7 +2,7 @@ import React from "react";
 import ChartContainer from "../components/ChartContainer";
 import BaseMap from "./BaseMap";
 import MapPin from "./MapPin";
-import Tooltip from "../components/Tooltip/Tooltip";
+import Tooltip from "../components/Tooltip";
 
 class PindropMap extends React.Component {
   constructor(props) {

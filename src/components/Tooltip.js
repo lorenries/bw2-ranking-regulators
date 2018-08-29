@@ -1,5 +1,5 @@
 import React from "react";
-import "./Tooltip.scss";
+import "../scss/Tooltip.scss";
 
 const body = document.querySelector("body");
 

@@ -25,7 +25,8 @@ module.exports = {
       title: "",
       chartIDs: [
         "bw2_ranking_regulators_column_chart",
-        "bw2_ranking_regulators_pindrop_map"
+        "bw2_ranking_regulators_pindrop_map",
+        "bw2_ranking_regulators_data_table"
       ],
       inject: false,
       template: path.resolve(__dirname, "src/index.html")

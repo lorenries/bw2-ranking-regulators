@@ -62,7 +62,7 @@ class BaseMap extends React.Component {
   render() {
     const { path, features } = this.state;
     return (
-      <svg width={this.props.width} height={this.props.height}>
+      <svg viewBox={`0 0 ${this.props.width} ${this.props.height}`}>
         <g className="geometry">
           {features.map((d, i) => (
             <path
