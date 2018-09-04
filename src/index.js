@@ -7,13 +7,16 @@ import ReactDOM from "react-dom";
 import PindropMap from "./charts/PindropMap";
 import ReactTable from "react-table";
 import rawData from "./data/all.csv";
-import {CheckMark, XMark, YellowCircle} from "./components/icons.js"
+import { CheckMark, XMark, YellowCircle } from "./components/icons.js";
 
 const data = d3.csvParse(rawData);
 
-  d3.json("http://na-data-projects.s3.amazonaws.com/data/bw2/ranking_regulators.json", data => {
-    console.log(data)
-  })
+d3.json(
+  "http://na-data-projects.s3.amazonaws.com/data/bw2/ranking_regulators.json",
+  data => {
+    console.log(data);
+  }
+);
 
 const settings = {
   bw2_ranking_regulators_column_chart: {
@@ -37,14 +40,14 @@ function dataTableInit(el) {
     constructor() {
       super();
       const cleanData = data.map(row => {
-          return {
-            ...row,
-            Ranking: +row["Ranking"],
-            "Total Score": +row["Total Score"]
-          }
-        });
+        return {
+          ...row,
+          Ranking: +row["Ranking"],
+          "Total Score": +row["Total Score"]
+        };
+      });
       cleanData.columns = data.columns;
-        console.log(cleanData)
+      console.log(cleanData);
       this.state = {
         data: cleanData
       };
@@ -54,15 +57,59 @@ function dataTableInit(el) {
       const columns = data.columns;
       return (
         <div>
-          <div style={{display: "flex", flexDirection: "column"}}>
-            <div style={{display: "flex", alignItems: "center", paddingBottom: "0.5rem"}}>
-              <CheckMark width="25px" height="25px" style={{paddingRight: "0.5rem"}} /><span style={{fontSize: "12px"}}>Adequate information indicating the regulator's active participation and substantial progress made to incorporate ESG issues in insurance sector supervision (10)</span>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                paddingBottom: "0.5rem"
+              }}
+            >
+              <CheckMark
+                width="25px"
+                height="25px"
+                style={{ paddingRight: "0.5rem" }}
+              />
+              <span style={{ fontSize: "12px" }}>
+                Adequate information indicating the regulator's active
+                participation and substantial progress made to incorporate ESG
+                issues in insurance sector supervision (10)
+              </span>
             </div>
-            <div style={{display: "flex", alignItems: "center", paddingBottom: "0.5rem"}}>
-              <YellowCircle width="25px" height="25px" style={{paddingRight: "0.5rem"}} /><span style={{fontSize: "12px"}}>Sufficient information indicating the regulator's intention in the incorporation of ESG issues in insurance industry supervision (5)</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                paddingBottom: "0.5rem"
+              }}
+            >
+              <YellowCircle
+                width="25px"
+                height="25px"
+                style={{ paddingRight: "0.5rem" }}
+              />
+              <span style={{ fontSize: "12px" }}>
+                Sufficient information indicating the regulator's intention in
+                the incorporation of ESG issues in insurance industry
+                supervision (5)
+              </span>
             </div>
-            <div style={{display: "flex", alignItems: "center", paddingBottom: "0.5rem"}}>
-              <XMark width="25px" height="25px" style={{paddingRight: "0.5rem"}} /><span style={{fontSize: "12px"}}>No/insufficient information about regulators’ push for sustainable insurance (0)</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                paddingBottom: "0.5rem"
+              }}
+            >
+              <XMark
+                width="25px"
+                height="25px"
+                style={{ paddingRight: "0.5rem" }}
+              />
+              <span style={{ fontSize: "12px" }}>
+                No/insufficient information about regulators’ push for
+                sustainable insurance (0)
+              </span>
             </div>
           </div>
           <ReactTable
@@ -72,26 +119,36 @@ function dataTableInit(el) {
             showPagination={false}
             columns={columns
               .filter(val => val !== "lat" && val !== "lon")
-              .map((val) => {
+              .map(val => {
                 return {
                   Header: val,
                   accessor: val,
                   minWidth: val === "Regulators" ? 400 : 200,
                   headerClassName: val === "Regulators" ? "-sticky" : null,
-                  className: val === "Regulators" ? "-sticky -centered" : "-centered",
+                  className:
+                    val === "Regulators" ? "-sticky -centered" : "-centered",
                   Cell: row => {
-                    if (val === "Does the regulator hold multi-stakeholder consultations (e.g. private sector, civil society) around ESG risks?") {
-                      row.value = row.original[val]
+                    if (
+                      val ===
+                      "Does the regulator hold multi-stakeholder consultations (e.g. private sector, civil society) around ESG risks?"
+                    ) {
+                      row.value = row.original[val];
                     }
-                    if (val === "Does the regulator promote sustainable investment management practices (e.g. GreenFinance)?") {
-                      row.value = row.original[val]
+                    if (
+                      val ===
+                      "Does the regulator promote sustainable investment management practices (e.g. GreenFinance)?"
+                    ) {
+                      row.value = row.original[val];
                     }
-                    return row.value === "10" && val !== "Ranking" ? (
-                      <CheckMark width="15px" height="15px"/>
-                    ) : row.value === "0" && val !== "Ranking" ? (
-                      <XMark width="15px" height="15px"/>
-                    ) : row.value === "5" && val !== "Ranking" ? (
-                      <YellowCircle width="15px" height="15px"/>
+                    if (row.row["Regulators"] === "Average") {
+                      return row.value;
+                    }
+                    return row.value === "10" && val !== "Ranking" && val ? (
+                      <CheckMark width="15px" height="15px" />
+                    ) : row.value === "0" && val !== "Ranking" && val ? (
+                      <XMark width="15px" height="15px" />
+                    ) : row.value === "5" && val !== "Ranking" && val ? (
+                      <YellowCircle width="15px" height="15px" />
                     ) : (
                       row.value
                     );
@@ -115,7 +172,12 @@ function dataTableInit(el) {
                   }
                 };
               })}
-            />
+          />
+          <p className="chart__source">
+            *Voluntary membership organizations without regulatory authority
+            were assessed on the extent to which they have encouraged compliance
+            with the principles
+          </p>
         </div>
       );
     }
@@ -125,6 +187,7 @@ function dataTableInit(el) {
 }
 
 function mapInit(el) {
+  const filteredData = data.filter(row => row["Regulators"] !== "Average");
   const tooltipTemplate = d => (
     <div>
       <div className="tooltip__title-container">
@@ -159,7 +222,7 @@ function mapInit(el) {
 
   ReactDOM.render(
     <PindropMap
-      data={data}
+      data={filteredData}
       geometry="world"
       width={el.offsetWidth}
       height={(2 * el.offsetWidth) / 5}
@@ -180,6 +243,7 @@ function mixedTableBarInit(el) {
         "Total Score": row["Total Score"]
       };
     })
+    .filter(row => row["Regulator"] !== "Average")
     .sort(function(x, y) {
       return d3.ascending(+x["Ranking"], +y["Ranking"]);
     });
@@ -192,22 +256,22 @@ function mixedTableBarInit(el) {
     .domain([0, d3.max(filteredData, d => d["Total Score"])])
     .range([0, 100]);
 
-  var meta = d3.select(el)
+  var meta = d3
+    .select(el)
     .append("div")
-    .classed("chart__meta-container", true)
+    .classed("chart__meta-container", true);
 
   var title = meta
     .append("h3")
     .text("Global Regulators on Sustainable Insurance Ranking (GRSIR)")
-    .classed("chart__title", true)
+    .classed("chart__title", true);
 
-  var container = d3.select(el)
+  var container = d3
+    .select(el)
     .append("div")
-    .classed("overflow-auto", true)
+    .classed("overflow-auto", true);
 
-  var table = container
-    .append("table")
-    .classed("table dataTable", true);
+  var table = container.append("table").classed("table dataTable", true);
 
   var tbody = table.append("tbody");
   var thead = table.append("thead");
