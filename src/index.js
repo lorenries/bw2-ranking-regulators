@@ -263,7 +263,7 @@ function mixedTableBarInit(el) {
 
   var title = meta
     .append("h3")
-    .text("Global Regulators on Sustainable Insurance Ranking (GRSIR)")
+    .text("Global Insurance Regulators Sustainability Ranking (GIRSR)")
     .classed("chart__title", true);
 
   var container = d3
