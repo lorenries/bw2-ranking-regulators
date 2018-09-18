@@ -11,21 +11,14 @@ import { CheckMark, XMark, YellowCircle } from "./components/icons.js";
 
 const data = d3.csvParse(rawData);
 
-d3.json(
-  "http://na-data-projects.s3.amazonaws.com/data/bw2/ranking_regulators.json",
-  data => {
-    console.log(data);
-  }
-);
-
 const settings = {
-  bw2_ranking_regulators_column_chart: {
+  viz__bw2_ranking_regulators_column_chart: {
     init: mixedTableBarInit
   },
-  bw2_ranking_regulators_pindrop_map: {
+  viz__bw2_ranking_regulators_pindrop_map: {
     init: mapInit
   },
-  bw2_ranking_regulators_data_table: {
+  viz__bw2_ranking_regulators_data_table: {
     init: dataTableInit
   }
 };
@@ -56,7 +49,13 @@ function dataTableInit(el) {
       const { data } = this.state;
       const columns = data.columns;
       return (
-        <div>
+        <div
+          style={{
+            maxWidth: "1200px",
+            marginLeft: "auto",
+            marginRight: "auto"
+          }}
+        >
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
@@ -141,6 +140,7 @@ function dataTableInit(el) {
                       row.value = row.original[val];
                     }
                     if (row.row["Regulators"] === "Average") {
+                      if (row.value === 0) return "";
                       return row.value;
                     }
                     return row.value === "10" && val !== "Ranking" && val ? (
@@ -224,8 +224,8 @@ function mapInit(el) {
     <PindropMap
       data={filteredData}
       geometry="world"
-      width={el.offsetWidth}
-      height={(2 * el.offsetWidth) / 5}
+      width={1200}
+      height={480}
       title="Insurance Regulators Map"
       tooltip={tooltipTemplate}
     />,
@@ -269,7 +269,10 @@ function mixedTableBarInit(el) {
   var container = d3
     .select(el)
     .append("div")
-    .classed("overflow-auto", true);
+    .classed("overflow-auto", true)
+    .style("max-width", "1200px")
+    .style("margin-left", "auto")
+    .style("margin-right", "auto");
 
   var table = container.append("table").classed("table dataTable", true);
 
